@@ -12,8 +12,8 @@ import java.util.jar.JarFile;
 
 public class Launcher {
     public static final String ATTACH_ARG = "--attach";
-    public static final String VERSION = "2022.2.0";
-    public static final int VERSION_NUMBER = 202201000;
+    public static final String VERSION = "2025.3.0";
+    public static final int VERSION_NUMBER = 202503000;
 
     private static boolean loaded = false;
 
