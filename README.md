@@ -40,6 +40,8 @@ EQUAL,somedomain
 # PREFIX_IC   Use `startsWith` to compare, ignore case
 # SUFFIX      Use `endsWith` to compare
 # SUFFIX_IC   Use `endsWith` to compare, ignore case
+# CONTAINS_ANY Use `contains` to compare any of the keywords (comma-separated)
+# CONTAINS_ANY_IC Use `contains` to compare any of the keywords, ignore case
 # REGEXP      Use regular expressions to match
 ```
 
@@ -72,3 +74,141 @@ EQUAL,somedomain
     * enjoy the new capabilities brought by the plugin
     * if the file suffix is `.disabled.jar`, the plugin will be disabled
    
+## New Features in 2025.3.0
+
+### 1. New Rule Types
+
+#### CONTAINS_ANY
+Matches content that contains any of the specified keywords (comma-separated).
+
+```
+[SECTION]
+CONTAINS_ANY,keyword1,keyword2,keyword3
+```
+
+#### CONTAINS_ANY_IC
+Case-insensitive version of CONTAINS_ANY.
+
+```
+[SECTION]
+CONTAINS_ANY_IC,KEYWORD1,KEYWORD2,KEYWORD3
+```
+
+### 2. File System Monitoring Plugin
+
+A sample plugin that monitors file system operations by hooking into the `java.io.File` class.
+
+#### Features
+- Monitors File constructor calls
+- Tracks file existence checks
+- Records file creation operations
+- Logs file deletion events
+
+#### Usage
+1. Build the fs-monitor-plugin
+2. Place the plugin jar in the `plugins` directory
+3. Configure the plugin via `fsmonitor.conf` in the `config` directory
+
+### 3. Network Monitoring Plugin
+
+A sample plugin that monitors HTTP network requests by hooking into the `java.net.HttpURLConnection` class.
+
+#### Features
+- Monitors HTTP request methods (GET, POST, PUT, DELETE)
+- Tracks connection establishment
+- Records response status codes
+- Logs response data access
+
+#### Usage
+1. Build the network-monitor-plugin
+2. Place the plugin jar in the `plugins` directory
+3. Configure the plugin via `networkmonitor.conf` in the `config` directory
+
+#### Example Configuration
+```
+[NETWORK]
+# Network Monitor Configuration
+ENABLE=true
+LOG_LEVEL=INFO
+INCLUDE_DOMAINS=example.com,github.com
+EXCLUDE_DOMAINS=localhost,127.0.0.1
+MONITOR_GET=true
+MONITOR_POST=true
+```
+
+### 4. Multiple Plugin Support
+
+ja-netfilter now supports loading multiple plugins simultaneously. Each plugin runs in its own classloader and can have its own configuration file.
+
+#### Example Plugin Configuration
+```
+[FSMONITOR]
+# File System Monitor Configuration
+MONITOR_CREATE=true
+MONITOR_EXISTS=true
+MONITOR_DELETE=true
+```
+
+## Development Examples
+
+### Creating a Simple Plugin
+
+1. **Create Plugin Entry Class**
+   ```java
+   public class MyPluginEntry implements PluginEntry {
+       @Override
+       public String getName() { return "myplugin"; }
+       @Override
+       public List<MyTransformer> getTransformers() {
+           return Collections.singletonList(new MyTransformerImpl());
+       }
+   }
+   ```
+
+2. **Implement Transformer**
+   ```java
+   public class MyTransformerImpl implements MyTransformer {
+       @Override
+       public String getHookClassName() { return "java/lang/String"; }
+       @Override
+       public byte[] transform(...) {
+           // Use ASM to modify bytecode
+           return classFileBuffer;
+       }
+   }
+   ```
+
+3. **Configure Plugin**
+   ```
+   [MYPLUGIN]
+   KEYWORD,test
+   CONTAINS_ANY,apple,banana,orange
+   ```
+
+## Building from Source
+
+### Prerequisites
+- JDK 8 or later
+- Maven 3.6.0 or later
+
+### Build Steps
+
+1. **Build the main project**
+   ```bash
+   ./mvnw clean package -DskipTests
+   ```
+
+2. **Build a plugin**
+   ```bash
+   cd sample-plugin
+   mvn clean package -DskipTests
+   ```
+
+3. **Run tests**
+   ```bash
+   java -javaagent:target/ja-netfilter-jar-with-dependencies.jar -cp . TestApp
+   ```
+
+## License
+
+GNU General Public License v3.0

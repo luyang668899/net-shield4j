@@ -11,6 +11,8 @@ public enum RuleType {
     KEYWORD_IC(new KeywordICRuler()),
     EQUAL(new EqualRuler()),
     EQUAL_IC(new EqualICRuler()),
+    CONTAINS_ANY(new ContainsAnyRuler()),
+    CONTAINS_ANY_IC(new ContainsAnyICRuler()),
     REGEXP(new RegExpRuler());
 
     private final Ruler ruler;
